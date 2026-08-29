@@ -1,0 +1,36 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    ports: ["5433:5432"]
+    environment:
+      POSTGRES_USER: sovereign
+      POSTGRES_PASSWORD: sovereign
+      POSTGRES_DB: sovereign
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/migrations/001_initial.sql:/docker-entrypoint-initdb.d/001_initial.sql:ro
+  ollama:
+    image: ollama/ollama:latest
+    ports: ["11434:11434"]
+    volumes:
+      - ollama:/root/.ollama
+  backend:
+    build: ./backend
+    ports: ["8000:8000"]
+    environment:
+      DATABASE_URL: postgresql://sovereign:sovereign@db:5432/sovereign
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: llama3.2:3b
+    volumes:
+      - ./backend:/app/backend
+      - ./storage:/app/storage
+    depends_on: [db, ollama]
+  frontend:
+    build: ./frontend
+    ports: ["3000:3000"]
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    depends_on: [backend]
+volumes:
+  pgdata:
+  ollama:

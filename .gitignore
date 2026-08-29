@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+.next/
+node_modules/
+storage/documents/*
+storage/processed/*
+!storage/documents/.gitkeep
+!storage/processed/.gitkeep
+.DS_Store
